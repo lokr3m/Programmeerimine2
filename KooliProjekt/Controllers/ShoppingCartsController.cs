@@ -19,9 +19,11 @@ namespace KooliProjekt.Controllers
         }
 
         // GET: ShoppingCarts
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _context.ShoppingCarts.ToListAsync());
+           
+            var pagedShoppingCarts = await _context.ShoppingCarts.GetPagedAsync(page, 5);
+            return View(pagedShoppingCarts);
         }
 
         // GET: ShoppingCarts/Details/5

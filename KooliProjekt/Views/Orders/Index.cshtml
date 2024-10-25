@@ -1,4 +1,4 @@
-﻿@model IEnumerable<KooliProjekt.Data.Order>
+﻿@model PagedResult<KooliProjekt.Data.Order>
 
 @{
     ViewData["Title"] = "Index";
@@ -12,23 +12,16 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Date)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Stock</th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Results) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Date)
@@ -50,4 +43,5 @@
         </tr>
 }
     </tbody>
+
 </table>

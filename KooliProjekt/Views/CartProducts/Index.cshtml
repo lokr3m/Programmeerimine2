@@ -1,35 +1,25 @@
-﻿@model IEnumerable<KooliProjekt.Data.CartProduct>
+﻿@model PagedResult<CartProduct>
 
-@{
-    ViewData["Title"] = "Index";
-}
+<h2>Cart Products</h2>
 
 <h1>Index</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Product)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
-            </th>
-            <th></th>
+            <th>Product Name</th>
+            <th>Quantity</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Results) {
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Product.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
+            <td>@item.Product.Name</td>
+            <td>@item.Quantity</td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
@@ -39,3 +29,7 @@
 }
     </tbody>
 </table>
+<div>
+    @(await Component.InvokeAsync<PagerViewComponent>(Model))
+</div>
+

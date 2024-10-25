@@ -1,10 +1,6 @@
-﻿@model IEnumerable<KooliProjekt.Data.ShoppingCart>
+﻿@model PagedResult<ShoppingCart>
 
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
+<h2>Shopping Carts</h2>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -12,14 +8,14 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DateCreated)
-            </th>
-            <th></th>
+            <th>Cart ID</th>
+            <th>User Name</th>
+            <th>Total Quantity</th>
+            <th>Total Price</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+@foreach (var item in Model.Results) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.DateCreated)
