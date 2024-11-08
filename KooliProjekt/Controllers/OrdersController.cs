@@ -21,7 +21,7 @@ namespace KooliProjekt.Controllers
         // GET: Orders
         public async Task<IActionResult> Index(int page = 1)
         {
-            var pagedOrders = await _context.Order.GetPagedAsync(page, 5);
+            var pagedOrders = await _context.Orders.GetPagedAsync(page, 5);
             return View(pagedOrders);
         }
 
@@ -33,7 +33,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Order
+            var order = await _context.Orders
                 .Include(o => o.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (order == null)
@@ -76,7 +76,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Order.FindAsync(id);
+            var order = await _context.Orders.FindAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -129,7 +129,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Order
+            var order = await _context.Orders
                 .Include(o => o.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (order == null)
@@ -145,10 +145,10 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _context.Order.FindAsync(id);
+            var order = await _context.Orders.FindAsync(id);
             if (order != null)
             {
-                _context.Order.Remove(order);
+                _context.Orders.Remove(order);
             }
 
             await _context.SaveChangesAsync();
@@ -157,7 +157,7 @@ namespace KooliProjekt.Controllers
 
         private bool OrderExists(int id)
         {
-            return _context.Order.Any(e => e.Id == id);
+            return _context.Orders.Any(e => e.Id == id);
         }
     }
 }

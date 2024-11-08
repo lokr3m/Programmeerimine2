@@ -48,7 +48,7 @@ namespace KooliProjekt.Controllers
         // GET: OrderProducts/Create
         public IActionResult Create()
         {
-            ViewData["OrderId"] = new SelectList(_context.Order, "Id", "Id");
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id");
             ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id");
             return View();
         }
@@ -66,7 +66,7 @@ namespace KooliProjekt.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OrderId"] = new SelectList(_context.Order, "Id", "Id", orderProduct.OrderId);
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderProduct.OrderId);
             ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", orderProduct.ProductId);
             return View(orderProduct);
         }
@@ -84,7 +84,7 @@ namespace KooliProjekt.Controllers
             {
                 return NotFound();
             }
-            ViewData["OrderId"] = new SelectList(_context.Order, "Id", "Id", orderProduct.OrderId);
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderProduct.OrderId);
             ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", orderProduct.ProductId);
             return View(orderProduct);
         }
@@ -121,7 +121,7 @@ namespace KooliProjekt.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OrderId"] = new SelectList(_context.Order, "Id", "Id", orderProduct.OrderId);
+            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderProduct.OrderId);
             ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", orderProduct.ProductId);
             return View(orderProduct);
         }

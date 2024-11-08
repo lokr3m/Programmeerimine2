@@ -13,7 +13,9 @@ namespace KooliProjekt
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString));
+            {
+                options.UseSqlServer(connectionString);
+            });
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -47,6 +49,15 @@ namespace KooliProjekt
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
 
+#if DEBUG
+            using (var scope = app.Services.CreateScope())
+            using (var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>())
+            using (var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>())
+            { 
+                context.Database.EnsureCreated();
+                SeedData.Generate(context, userManager);
+            }
+#endif
             app.Run();
         }
     }
