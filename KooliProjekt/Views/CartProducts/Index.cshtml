@@ -1,4 +1,8 @@
-﻿@model PagedResult<CartProduct>
+﻿@model CartProductsIndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
 
 <h2>Cart Products</h2>
 
@@ -8,15 +12,24 @@
     <a asp-action="Create">Create New</a>
 </p>
 
+<form method="get">
+    <input type="text" name="Search.ProductName" value="@Model.Search?.ProductName" placeholder="Product Name" />
+    <input type="number" name="Search.MinQuantity" value="@Model.Search?.MinQuantity" placeholder="Min Quantity" />
+    <input type="number" name="Search.MaxQuantity" value="@Model.Search?.MaxQuantity" placeholder="Max Quantity" />
+    <button type="submit">Search</button>
+</form>
+
 <table class="table">
     <thead>
         <tr>
             <th>Product Name</th>
             <th>Quantity</th>
+            <th>Cart</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Results) {
+        @foreach (var item in Model.Data.Results)
+        {
         <tr>
             <td>@item.Product.Name</td>
             <td>@item.Quantity</td>
@@ -30,6 +43,6 @@
     </tbody>
 </table>
 <div>
-    @(await Component.InvokeAsync<PagerViewComponent>(Model))
+    @(await Component.InvokeAsync<PagerViewComponent>(Model.Data))
 </div>
 

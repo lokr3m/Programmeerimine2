@@ -1,28 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using KooliProjekt.Data;
+using KooliProjekt.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using KooliProjekt.Data;
 
 namespace KooliProjekt.Controllers
 {
     public class OrdersController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IOrdersService _ordersService;
 
-        public OrdersController(ApplicationDbContext context)
+        public OrdersController(IOrdersService ordersService)
         {
-            _context = context;
+            _ordersService = ordersService;
         }
+
 
         // GET: Orders
         public async Task<IActionResult> Index(int page = 1)
         {
-            var pagedOrders = await _context.Orders.GetPagedAsync(page, 5);
-            return View(pagedOrders);
+            var orders = await _ordersService.List(page, 5);
+            return View(orders);
         }
 
         // GET: Orders/Details/5
@@ -33,9 +29,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders
-                .Include(o => o.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var order = await _ordersService.Get(id.Value);
             if (order == null)
             {
                 return NotFound();
@@ -47,7 +41,6 @@ namespace KooliProjekt.Controllers
         // GET: Orders/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -60,11 +53,9 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(order);
-                await _context.SaveChangesAsync();
+                await _ordersService.Save(order);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", order.UserId);
             return View(order);
         }
 
@@ -76,12 +67,11 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders.FindAsync(id);
+            var order = await _ordersService.Get(id.Value);
             if (order == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", order.UserId);
             return View(order);
         }
 
@@ -99,25 +89,10 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderExists(order.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _ordersService.Save(order);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", order.UserId);
+
             return View(order);
         }
 
@@ -129,9 +104,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Orders
-                .Include(o => o.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var order = await _ordersService.Get(id.Value);
             if (order == null)
             {
                 return NotFound();
@@ -145,19 +118,8 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order != null)
-            {
-                _context.Orders.Remove(order);
-            }
-
-            await _context.SaveChangesAsync();
+            await _ordersService.Delete(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool OrderExists(int id)
-        {
-            return _context.Orders.Any(e => e.Id == id);
         }
     }
 }

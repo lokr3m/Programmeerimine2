@@ -1,28 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using KooliProjekt.Data;
+using KooliProjekt.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using KooliProjekt.Data;
 
 namespace KooliProjekt.Controllers
 {
     public class ShoppingCartsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IShoppingCartService _shoppingCartService;
 
-        public ShoppingCartsController(ApplicationDbContext context)
+        public ShoppingCartsController(IShoppingCartService shoppingCartService)
         {
-            _context = context;
+            _shoppingCartService = shoppingCartService;
         }
 
         // GET: ShoppingCarts
         public async Task<IActionResult> Index(int page = 1)
         {
-           
-            var pagedShoppingCarts = await _context.ShoppingCarts.GetPagedAsync(page, 5);
+            var pagedShoppingCarts = await _shoppingCartService.List(page, 5);
             return View(pagedShoppingCarts);
         }
 
@@ -34,8 +28,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var shoppingCart = await _context.ShoppingCarts
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var shoppingCart = await _shoppingCartService.Get(id.Value);
             if (shoppingCart == null)
             {
                 return NotFound();
@@ -59,8 +52,7 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(shoppingCart);
-                await _context.SaveChangesAsync();
+                await _shoppingCartService.Save(shoppingCart);
                 return RedirectToAction(nameof(Index));
             }
             return View(shoppingCart);
@@ -74,7 +66,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var shoppingCart = await _context.ShoppingCarts.FindAsync(id);
+            var shoppingCart = await _shoppingCartService.Get(id.Value);
             if (shoppingCart == null)
             {
                 return NotFound();
@@ -85,8 +77,8 @@ namespace KooliProjekt.Controllers
         // POST: ShoppingCarts/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+            [HttpPost]
+            [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,DateCreated")] ShoppingCart shoppingCart)
         {
             if (id != shoppingCart.Id)
@@ -96,22 +88,7 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(shoppingCart);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ShoppingCartExists(shoppingCart.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _shoppingCartService.Save(shoppingCart);
                 return RedirectToAction(nameof(Index));
             }
             return View(shoppingCart);
@@ -125,8 +102,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var shoppingCart = await _context.ShoppingCarts
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var shoppingCart = await _shoppingCartService.Get(id.Value);
             if (shoppingCart == null)
             {
                 return NotFound();
@@ -140,19 +116,8 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var shoppingCart = await _context.ShoppingCarts.FindAsync(id);
-            if (shoppingCart != null)
-            {
-                _context.ShoppingCarts.Remove(shoppingCart);
-            }
-
-            await _context.SaveChangesAsync();
+            await _shoppingCartService.Delete(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool ShoppingCartExists(int id)
-        {
-            return _context.ShoppingCarts.Any(e => e.Id == id);
         }
     }
 }

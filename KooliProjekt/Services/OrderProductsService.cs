@@ -14,7 +14,10 @@ namespace KooliProjekt.Services
 
         public async Task<PagedResult<OrderProduct>> List(int page, int pageSize)
         {
-            return await _context.OrderProducts.GetPagedAsync(page, 5);
+            return await _context.OrderProducts
+                .Include(op => op.Product)
+                .Include(op => op.Order)
+                .GetPagedAsync(page, 5);
         }
 
         public async Task<OrderProduct> Get(int id)

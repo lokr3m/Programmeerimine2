@@ -1,28 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using KooliProjekt.Data;
+using KooliProjekt.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using KooliProjekt.Data;
 
 namespace KooliProjekt.Controllers
 {
     public class CategoriesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICategoriesService _categoryService;
 
-        public CategoriesController(ApplicationDbContext context)
+        public CategoriesController(ICategoriesService categoryService)
         {
-            _context = context;
+            _categoryService = categoryService;
         }
 
         // GET: Categories
         public async Task<IActionResult> Index(int page = 1)
         {
-            var pagedCategories = await _context.Categories.GetPagedAsync(page, 5);
-            return View(pagedCategories);
+            var data = await _categoryService.List(page, 5);
+
+            return View(data);
         }
 
         // GET: Categories/Details/5
@@ -33,8 +29,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var category = await _categoryService.Get(id.Value);
             if (category == null)
             {
                 return NotFound();
@@ -58,8 +53,7 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(category);
-                await _context.SaveChangesAsync();
+                await _categoryService.Save(category);
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
@@ -73,7 +67,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _categoryService.Get(id.Value);
             if (category == null)
             {
                 return NotFound();
@@ -95,22 +89,7 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(category);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoryExists(category.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _categoryService.Save(category);
                 return RedirectToAction(nameof(Index));
             }
             return View(category);
@@ -124,8 +103,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var category = await _categoryService.Get(id.Value);
             if (category == null)
             {
                 return NotFound();
@@ -139,19 +117,9 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-                _context.Categories.Remove(category);
-            }
+            await _categoryService.Delete(id);
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.Id == id);
         }
     }
 }

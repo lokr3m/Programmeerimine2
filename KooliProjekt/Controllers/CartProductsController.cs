@@ -1,28 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using KooliProjekt.Data;
+using KooliProjekt.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using KooliProjekt.Data;
+using KooliProjekt.Search;
+using KooliProjekt.Models;
 
 namespace KooliProjekt.Controllers
 {
     public class CartProductsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICartProductsService _cartProductsService;
 
-        public CartProductsController(ApplicationDbContext context)
+        public CartProductsController(ICartProductsService cartProductsService)
         {
-            _context = context;
+            _cartProductsService = cartProductsService;
         }
 
         // GET: CartProducts
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, CartProductsIndexModel model = null)
         {
-            var pagedCartProducts = await _context.CartProducts.GetPagedAsync(page, 5);
-            return View(pagedCartProducts);
+            model = model ?? new CartProductsIndexModel();
+            model.Data = await _cartProductsService.List(page, 5, model.Search);
+
+            return View(model);
         }
 
         // GET: CartProducts/Details/5
@@ -33,9 +33,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var cartProduct = await _context.CartProducts
-                .Include(c => c.Product)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var cartProduct = await _cartProductsService.Get(id.Value);
             if (cartProduct == null)
             {
                 return NotFound();
@@ -47,7 +45,6 @@ namespace KooliProjekt.Controllers
         // GET: CartProducts/Create
         public IActionResult Create()
         {
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id");
             return View();
         }
 
@@ -60,11 +57,9 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(cartProduct);
-                await _context.SaveChangesAsync();
+                await _cartProductsService.Save(cartProduct);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", cartProduct.ProductId);
             return View(cartProduct);
         }
 
@@ -76,12 +71,11 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var cartProduct = await _context.CartProducts.FindAsync(id);
+            var cartProduct = await _cartProductsService.Get(id.Value);
             if (cartProduct == null)
             {
                 return NotFound();
             }
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", cartProduct.ProductId);
             return View(cartProduct);
         }
 
@@ -99,25 +93,9 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(cartProduct);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CartProductExists(cartProduct.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _cartProductsService.Save(cartProduct);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", cartProduct.ProductId);
             return View(cartProduct);
         }
 
@@ -129,9 +107,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var cartProduct = await _context.CartProducts
-                .Include(c => c.Product)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var cartProduct = await _cartProductsService.Get(id.Value);
             if (cartProduct == null)
             {
                 return NotFound();
@@ -145,19 +121,9 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var cartProduct = await _context.CartProducts.FindAsync(id);
-            if (cartProduct != null)
-            {
-                _context.CartProducts.Remove(cartProduct);
-            }
+            await _cartProductsService.Delete(id);
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool CartProductExists(int id)
-        {
-            return _context.CartProducts.Any(e => e.Id == id);
         }
     }
 }

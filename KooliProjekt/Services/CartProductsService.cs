@@ -1,5 +1,7 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Search;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace KooliProjekt.Services
 {
@@ -12,10 +14,46 @@ namespace KooliProjekt.Services
             _context = context;
         }
 
-        public async Task<PagedResult<CartProduct>> List(int page, int pageSize)
+        public async Task<PagedResult<CartProduct>> List(int page, int pageSize, CartProductsSearch search = null)
         {
-            return await _context.CartProducts.GetPagedAsync(page, 5);
+            return await _context.CartProducts
+                    .Include(op => op.Product)
+                    .Include(op => op.ShoppingCart)
+                    .GetPagedAsync(page, 5);
+
+            search = search ?? new CartProductsSearch();
+
+            if (!string.IsNullOrWhiteSpace(search.Keyword))
+            {
+                query = query.Where(list => list.list.Name.Contains(search.Keyword));
+            }
+
+            if (search.MinQuantity != null)
+            {
+                query = query.Where(cp => cp.Quantity >= search.MinQuantity.Value);
+            }
+
+            if (search.MaxQuantity.HasValue)
+            {
+                query = query.Where(cp => cp.Quantity <= search.MaxQuantity.Value);
+            }
+
+            // Пагинация
+            var totalItems = await query.CountAsync();
+            var results = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<CartProduct>
+            {
+                Results = results,
+                PageIndex = page,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize),
+                TotalItems = totalItems
+            };
         }
+    }
 
         public async Task<CartProduct> Get(int id)
         {

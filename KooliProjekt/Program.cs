@@ -1,6 +1,7 @@
 using KooliProjekt.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using KooliProjekt.Services;
 
 namespace KooliProjekt
 {
@@ -20,6 +21,12 @@ namespace KooliProjekt
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            builder.Services.AddScoped<IProductsService, ProductsService>();
+            builder.Services.AddScoped<IOrdersService, OrdersService>();
+            builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
+            builder.Services.AddScoped<IOrderProductsService, OrderProductsService>();
+            builder.Services.AddScoped<ICategoriesService, CategoriesService>();
+            builder.Services.AddScoped<ICartProductsService, CartProductsService>();
             builder.Services.AddControllersWithViews();
 
             var app = builder.Build();

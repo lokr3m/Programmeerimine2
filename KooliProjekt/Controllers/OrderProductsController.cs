@@ -1,27 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using KooliProjekt.Data;
+using KooliProjekt.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using KooliProjekt.Data;
 
 namespace KooliProjekt.Controllers
 {
     public class OrderProductsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IOrderProductsService _orderProductService;
 
-        public OrderProductsController(ApplicationDbContext context)
+        public OrderProductsController(IOrderProductsService orderProductsService)
         {
-            _context = context;
+            _orderProductService = orderProductsService;
         }
 
         // GET: OrderProducts
         public async Task<IActionResult> Index(int page = 1)
         {
-            var pagedOrderProducts = await _context.OrderProducts.GetPagedAsync(page, 5);
+            var pagedOrderProducts = await _orderProductService.List(page, 5);
             return View(pagedOrderProducts);
         }
 
@@ -33,10 +29,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var orderProduct = await _context.OrderProducts
-                .Include(o => o.Order)
-                .Include(o => o.Product)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var orderProduct = await _orderProductService.Get(id.Value);
             if (orderProduct == null)
             {
                 return NotFound();
@@ -48,8 +41,6 @@ namespace KooliProjekt.Controllers
         // GET: OrderProducts/Create
         public IActionResult Create()
         {
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id");
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id");
             return View();
         }
 
@@ -62,12 +53,9 @@ namespace KooliProjekt.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(orderProduct);
-                await _context.SaveChangesAsync();
+                await _orderProductService.Save(orderProduct);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderProduct.OrderId);
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", orderProduct.ProductId);
             return View(orderProduct);
         }
 
@@ -79,13 +67,11 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var orderProduct = await _context.OrderProducts.FindAsync(id);
+            var orderProduct = await _orderProductService.Get(id.Value);
             if (orderProduct == null)
             {
                 return NotFound();
             }
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderProduct.OrderId);
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", orderProduct.ProductId);
             return View(orderProduct);
         }
 
@@ -103,26 +89,9 @@ namespace KooliProjekt.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _context.Update(orderProduct);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderProductExists(orderProduct.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                await _orderProductService.Save(orderProduct);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Id", orderProduct.OrderId);
-            ViewData["ProductId"] = new SelectList(_context.Products, "Id", "Id", orderProduct.ProductId);
             return View(orderProduct);
         }
 
@@ -134,10 +103,7 @@ namespace KooliProjekt.Controllers
                 return NotFound();
             }
 
-            var orderProduct = await _context.OrderProducts
-                .Include(o => o.Order)
-                .Include(o => o.Product)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var orderProduct = await _orderProductService.Get(id.Value);
             if (orderProduct == null)
             {
                 return NotFound();
@@ -151,19 +117,9 @@ namespace KooliProjekt.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var orderProduct = await _context.OrderProducts.FindAsync(id);
-            if (orderProduct != null)
-            {
-                _context.OrderProducts.Remove(orderProduct);
-            }
+            await _orderProductService.Delete(id);
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool OrderProductExists(int id)
-        {
-            return _context.OrderProducts.Any(e => e.Id == id);
         }
     }
 }
