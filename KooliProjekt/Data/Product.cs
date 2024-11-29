@@ -9,12 +9,13 @@
         public Category Category { get; set; }
         public int CategoryId { get; set; }
         public int Stock { get; set; }
+        public bool IsDone { get; set; }
 
-        public IList<OrderProduct> OrderProducts { get; set; }
+        public IList<Product> Products { get; set; }
 
         public Product()
         {
-            OrderProducts = new List<OrderProduct>();
+            Products = new List<Product>();
         }
     }
 }
