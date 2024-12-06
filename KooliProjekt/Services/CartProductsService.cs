@@ -15,10 +15,23 @@ namespace KooliProjekt.Services
 
         public async Task<PagedResult<CartProduct>> List(int page, int pageSize, CartProductsSearch search = null)
         {
-            return await _context.CartProducts
+            var query = _context.CartProducts.AsQueryable();
+
+            search = search ?? new CartProductsSearch();
+
+            if (!string.IsNullOrWhiteSpace(search.Keyword))
+            {
+                query = query.Where(list => list.Product.Name.Contains(search.Keyword));
+            }
+            if (search.Done != null) 
+            {
+                query = query.Where(list => list.Product.IsDone == search.Done);
+            }
+
+            return await query
                 .Include(cp => cp.Product)
                 .Include(cp => cp.ShoppingCart)
-                .GetPagedAsync(page, 5);
+                .GetPagedAsync(page, pageSize);
         }
 
         public async Task<CartProduct> Get(int id)

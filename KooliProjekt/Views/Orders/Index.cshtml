@@ -1,4 +1,4 @@
-﻿@model PagedResult<KooliProjekt.Data.Order>
+﻿@model OrdersIndexModel
 
 @{
     ViewData["Title"] = "Index";
@@ -9,6 +9,24 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<form method="get">
+    <div class="form-group">
+        <label class="control-label">Märksõna</label>
+        <input asp-for="Search.Keyword" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label class="control-label">Kõik itemid tehtud</label>
+        <select asp-for="Search.Done" class="form-control">
+            <option value="">-</option>
+            <option value="true">Jah</option>
+            <option value="false">Ei</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary">Otsi</button>
+        <a asp-controller="TodoLists" asp-action="Index" class="btn btn-primary">Reset</a>
+    </div>
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -21,7 +39,7 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.Results) {
+@foreach (var item in Model.Data.Results) {
         <tr>
             <td>
                     @Html.DisplayFor(modelItem => item.OrderDate)

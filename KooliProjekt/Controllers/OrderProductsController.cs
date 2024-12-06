@@ -1,7 +1,14 @@
-﻿using KooliProjekt.Data;
-using KooliProjekt.Services;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using KooliProjekt.Data;
+using KooliProjekt.Services;
+using KooliProjekt.Search;
+using KooliProjekt.Models;
 
 namespace KooliProjekt.Controllers
 {
@@ -15,10 +22,12 @@ namespace KooliProjekt.Controllers
         }
 
         // GET: OrderProducts
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, OrderProductsIndexModel model = null)
         {
-            var pagedOrderProducts = await _orderProductService.List(page, 5);
-            return View(pagedOrderProducts);
+            model = model ?? new OrderProductsIndexModel();
+            model.Data = await _orderProductsService.List(page, 5, model.Search);
+
+            return View(model);
         }
 
         // GET: OrderProducts/Details/5
