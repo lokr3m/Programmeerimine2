@@ -25,7 +25,7 @@ namespace KooliProjekt.Controllers
         public async Task<IActionResult> Index(int page = 1, OrderProductsIndexModel model = null)
         {
             model = model ?? new OrderProductsIndexModel();
-            model.Data = await _orderProductsService.List(page, 5, model.Search);
+            model.Data = await _orderProductService.List(page, 5, model.Search);
 
             return View(model);
         }
