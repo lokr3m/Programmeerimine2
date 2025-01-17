@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace KooliProjekt.Data
 {
@@ -7,13 +8,15 @@ namespace KooliProjekt.Data
         public int Id { get; set; }
         public string Name { get; set; }
         public DateTime OrderDate { get; set; }
-        public required string Status { get; set; }
+        [Required]
+        public string Status { get; set; }
         public decimal TotalAmount { get; set; }
 
         public IdentityUser User { get; set; }
         public string UserId {  get; set; }
 
         public IList<OrderProduct> OrderProducts { get; set; }
+        public string Title { get; set; }
 
         public Order()
         {

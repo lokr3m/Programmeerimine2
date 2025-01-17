@@ -9,6 +9,6 @@
         public int Quantity { get; set; }
 
         public ShoppingCart ShoppingCart { get; set; }
-
+        public string Title { get; set; }
     }
 }

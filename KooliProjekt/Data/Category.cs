@@ -1,12 +1,19 @@
-﻿namespace KooliProjekt.Data
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace KooliProjekt.Data
 {
     public class Category
     {
         public int Id { get; set; }
-        public required string Name { get; set; }
-        public required string Description { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        [Required]
+        public  string Description { get; set; }
 
         public IList<Product> Products { get; set; }
+        public string Title { get; set; }
 
         public Category()
         {

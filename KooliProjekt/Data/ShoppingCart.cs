@@ -10,6 +10,7 @@
         public decimal TotalQuantity { get; set; }
 
         public IList<CartProduct> CartProducts { get; set; }
+        public string Title { get; set; }
 
         public ShoppingCart()
         {
