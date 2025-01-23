@@ -25,17 +25,26 @@ namespace KooliProjekt.UnitTests.ControllerTests
         }
 
         [Fact]
-        public async Task Index_should_return_correct_view_with_data()
+        public async Task Index_should_return_view_and_data()
         {
             // Arrange
-            int page = 1;
+            var page = 1;
             var data = new List<ShoppingCart>
             {
                 new ShoppingCart { Id = 1, Title = "Test 1" },
                 new ShoppingCart { Id = 2, Title = "Test 2" }
             };
-            var pagedResult = new PagedResult<ShoppingCart> { Results = data };
-            _shoppingCartServiceMock.Setup(x => x.List(page, It.IsAny<int>(), null)).ReturnsAsync(pagedResult);
+            var pagedResult = new PagedResult<ShoppingCart>
+            {
+                Results = data,
+                CurrentPage = 1,
+                PageCount = 1,
+                PageSize = 5,
+                RowCount = 2
+            };
+            _shoppingCartServiceMock
+                .Setup(x => x.List(page, It.IsAny<int>(), null))
+                .ReturnsAsync(pagedResult);
 
             // Act
             var result = await _controller.Index(page) as ViewResult;
@@ -43,7 +52,131 @@ namespace KooliProjekt.UnitTests.ControllerTests
 
             // Assert
             Assert.NotNull(result);
+            Assert.True(
+                string.IsNullOrEmpty(result.ViewName) ||
+                result.ViewName == "Index"
+            );
             Assert.Equal(pagedResult, model.Data);
+        }
+
+        [Fact]
+        public async Task Details_should_return_notfound_when_id_is_null()
+        {
+            // Arrange
+            int? id = null;
+
+            // Act
+            var result = await _controller.Details(id) as NotFoundResult;
+
+            // Assert
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task Details_should_return_notfound_when_item_was_not_found()
+        {
+            // Arrange
+            int? id = 1;
+            var todoList = (ShoppingCart)null;
+            _shoppingCartServiceMock
+                .Setup(x => x.Get(id.Value))
+                .ReturnsAsync(todoList);
+
+            // Act
+            var result = await _controller.Details(id) as NotFoundResult;
+
+            // Assert
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task Details_should_return_correct_view_with_model_when_item_was_found()
+        {
+            // Arrange
+            int? id = 1;
+            var todoList = new ShoppingCart { Id = id.Value, Title = "Test 1" };
+            _shoppingCartServiceMock
+                .Setup(x => x.Get(id.Value))
+                .ReturnsAsync(todoList);
+
+            // Act
+            var result = await _controller.Details(id) as ViewResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(
+                string.IsNullOrEmpty(result.ViewName) ||
+                result.ViewName == "Details"
+            );
+            Assert.Equal(todoList, result.Model);
+        }
+
+        [Fact]
+        public void Create_should_return_correct_view()
+        {
+            // Arrange
+
+            // Act
+            var result = _controller.Create() as ViewResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(
+                string.IsNullOrEmpty(result.ViewName) ||
+                result.ViewName == "Create"
+            );
+        }
+
+        [Fact]
+        public async Task Delete_should_return_notfound_when_id_is_null()
+        {
+            // Arrange
+            int? id = null;
+
+            // Act
+            var result = await _controller.Delete(id) as NotFoundResult;
+
+            // Assert
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task Delete_should_return_notfound_when_item_was_not_found()
+        {
+            // Arrange
+            int? id = 1;
+            var todoList = (ShoppingCart)null;
+            _shoppingCartServiceMock
+                .Setup(x => x.Get(id.Value))
+                .ReturnsAsync(todoList);
+
+            // Act
+            var result = await _controller.Delete(id) as NotFoundResult;
+
+            // Assert
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task Delete_should_return_correct_view_with_model_when_item_was_found()
+        {
+            // Arrange
+            int? id = 1;
+            var todoList = new ShoppingCart { Id = id.Value, Title = "Test 1" };
+            _shoppingCartServiceMock
+                .Setup(x => x.Get(id.Value))
+                .ReturnsAsync(todoList);
+
+            // Act
+            var result = await _controller.Delete(id) as ViewResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.True(
+                string.IsNullOrEmpty(result.ViewName) ||
+                result.ViewName == "Delete"
+            );
+            Assert.Equal(todoList, result.Model);
         }
     }
 }
