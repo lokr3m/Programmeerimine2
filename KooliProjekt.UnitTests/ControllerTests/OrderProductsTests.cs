@@ -179,5 +179,22 @@ namespace KooliProjekt.UnitTests.ControllerTests
             );
             Assert.Equal(todoList, result.Model);
         }
+
+        [Fact]
+        public async Task DeleteConfirmed_should_delete_list()
+        {
+            // Arrange
+            int id = 1;
+            _orderProductsServiceMock
+                .Setup(x => x.Delete(id))
+        .Verifiable();
+
+            // Act
+            var result = await _controller.DeleteConfirmed(id) as RedirectToActionResult;
+
+            // Assert
+            Assert.NotNull(result);
+            _orderProductsServiceMock.VerifyAll();
+        }
     }
 }
