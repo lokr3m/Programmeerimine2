@@ -64,9 +64,14 @@ namespace KooliProjekt.Services
 
         public async Task Delete(int id)
         {
-            await _context.Products
-                .Where(list => list.Id == id)
-                .ExecuteDeleteAsync();
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return;
+            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
         }
     }
 }
