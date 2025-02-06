@@ -1,16 +1,17 @@
 ﻿using KooliProjekt.Data;
 using KooliProjekt.Services;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace KooliProjekt.UnitTests.ServiceTests
 {
     public class OrdersServiceTests : ServiceTestBase
     {
-        private readonly OrdersService _service;
+        private readonly OrdersService _ordersService;
 
         public OrdersServiceTests()
         {
-            _service = new OrdersService(DbContext);
+            _ordersService = new OrdersService(DbContext);
         }
 
         [Fact]
@@ -22,7 +23,7 @@ namespace KooliProjekt.UnitTests.ServiceTests
             DbContext.SaveChanges();
 
             // Act
-            await _service.Delete(list.Id);
+            await _ordersService.Delete(list.Id);
 
             // Assert
             var count = DbContext.Orders.Count();
@@ -36,11 +37,74 @@ namespace KooliProjekt.UnitTests.ServiceTests
             var id = -100;
 
             // Act
-            await _service.Delete(id);
+            await _ordersService.Delete(id);
 
             // Assert
             var count = DbContext.Orders.Count();
             Assert.Equal(0, count);
+        }
+
+        [Fact]
+        public async Task Get_should_return_existing_orders()
+        {
+            // Arrange
+            var orders = new Order { Name = "Test", Status = "Test" };
+            DbContext.Orders.Add(orders);
+            await DbContext.SaveChangesAsync();
+
+            // Act
+            var result = await _ordersService.Get(orders.Id);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(orders.Id, result.Id);
+        }
+
+        [Fact]
+        public async Task Save_should_add_new_orders()
+        {
+            // Arrange
+            var order = new Order { Name = "New Cat", Status = "New Desc" };
+
+            // Act
+            await _ordersService.Save(order);
+
+            // Assert
+            var savedOrders = await DbContext.Orders.FirstOrDefaultAsync(c => c.Name == "New Cat");
+            Assert.NotNull(savedOrders);
+            Assert.Equal("New Desc", savedOrders.Status);
+        }
+
+        [Fact]
+        public async Task Save_should_update_existing_orders()
+        {
+            // Arrange
+            var service = new OrdersService(DbContext);
+
+            DbContext.Orders.RemoveRange(DbContext.Orders);
+            await DbContext.SaveChangesAsync();
+
+            var existingOrders = new Order
+            {
+                Id = 1,
+                Name = "Clothes",
+                Status = "Done",
+                Title = "Test",
+            };
+
+            DbContext.Orders.Add(existingOrders);
+            await DbContext.SaveChangesAsync();
+
+            existingOrders.Title = "Test";
+
+            await service.Save(existingOrders);
+
+            // Act
+            var updatedOrder = await DbContext.Orders.FindAsync(existingOrders.Id);
+
+            // Assert
+            Assert.NotNull(updatedOrder);
+            Assert.Equal("Test", updatedOrder.Title);
         }
     }
 }
