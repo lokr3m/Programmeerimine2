@@ -1,4 +1,5 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Search;
 using KooliProjekt.Services;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -105,6 +106,47 @@ namespace KooliProjekt.UnitTests.ServiceTests
             // Assert
             Assert.NotNull(updatedShoppingCarts);
             Assert.Equal("Test", updatedShoppingCarts.Title);
+        }
+
+        [Fact]
+        public async Task List_should_return_paged_result()
+        {
+            // Arrange
+            DbContext.ShoppingCarts.AddRange(new List<ShoppingCart>
+            {
+                new ShoppingCart { TotalPrice = 100, TotalQuantity = 3},
+                new ShoppingCart { TotalPrice = 130, TotalQuantity = 2},
+                new ShoppingCart { TotalPrice = 12, TotalQuantity = 5},
+            });
+            await DbContext.SaveChangesAsync();
+
+            // Act
+            var result = await _shoppingCartsService.List(1, 2, null);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(3, result.Results.Count);
+        }
+
+        [Fact]
+        public async Task List_should_filter_by_keyword()
+        {
+            // Arrange
+            DbContext.ShoppingCarts.AddRange(new List<ShoppingCart>
+            {
+                new ShoppingCart { Title = "Bottle of water", TotalPrice = 12, TotalQuantity = 5},
+            });
+            await DbContext.SaveChangesAsync();
+
+            var search = new ShoppingCartsSearch { Keyword = "Bottle of water" };
+
+            // Act
+            var result = await _shoppingCartsService.List(1, 2, search);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Single(result.Results);
+            Assert.Equal("Bottle of water", result.Results.First().Title);
         }
     }
 }

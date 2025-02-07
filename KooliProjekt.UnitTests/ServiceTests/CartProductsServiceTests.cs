@@ -1,5 +1,6 @@
 ﻿using KooliProjekt.Data;
 using KooliProjekt.Data.Migrations;
+using KooliProjekt.Search;
 using KooliProjekt.Services;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -106,6 +107,56 @@ namespace KooliProjekt.UnitTests.ServiceTests
             // Assert
             Assert.NotNull(updatedCartProduct);
             Assert.Equal("Test", updatedCartProduct.Title);
+        }
+
+        [Fact]
+        public async Task List_should_return_paged_result()
+        {
+            // Arrange
+            DbContext.CartProducts.AddRange(new List<CartProduct>
+            {
+                new CartProduct { ProductName = "Wallet", Title = "Wallet for money"},
+                new CartProduct { ProductName = "Watches", Title = "Pocket waches"},
+                new CartProduct { ProductName = "Clothes", Title = "Men clothes"},
+            });
+            await DbContext.SaveChangesAsync();
+
+            // Act
+            var result = await _cartProductsService.List(1, 2);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(3, result.Results.Count);
+        }
+
+        [Fact]
+        public async Task List_should_filter_by_keyword()
+        {
+            // Arrange
+            DbContext.CartProducts.AddRange(new List<CartProduct>
+            {
+                new CartProduct 
+                { 
+                    Title = "Wallet", 
+                    ProductName = "GoldWallet",
+                    Product = new Product 
+                    {
+                        Name = "SilverWallet",
+                        Description = "-"
+                    }
+                },
+            });
+            await DbContext.SaveChangesAsync();
+
+            var search = new CartProductsSearch { Keyword = "Wallet" };
+
+            // Act
+            var result = await _cartProductsService.List(1, 2, search);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Single(result.Results);
+            Assert.Equal("Wallet", result.Results.First().Title);
         }
     }
 }

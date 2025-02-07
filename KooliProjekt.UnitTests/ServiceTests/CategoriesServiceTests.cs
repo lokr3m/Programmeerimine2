@@ -2,6 +2,7 @@
 using KooliProjekt.Search;
 using KooliProjekt.Services;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Xunit;
 
 namespace KooliProjekt.UnitTests.ServiceTests
@@ -105,6 +106,49 @@ namespace KooliProjekt.UnitTests.ServiceTests
             // Assert
             Assert.NotNull(updatedCategory);
             Assert.Equal("Test", updatedCategory.Title);  // Corrected property name here as well
+        }
+
+        [Fact]
+        public async Task List_should_return_paged_result()
+        {
+            // Arrange
+            DbContext.Categories.AddRange(new List<Category>
+            {
+                new Category { Name = "Tech", Description = "Technology" },
+                new Category { Name = "Sports", Description = "Sports category" },
+                new Category { Name = "Food", Description = "Food related" }
+            });
+            await DbContext.SaveChangesAsync();
+
+            // Act
+            var result = await _categoriesService.List(1, 2);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(3, result.Results.Count);
+        }
+
+        [Fact]
+        public async Task List_should_filter_by_keyword()
+        {
+            // Arrange
+            DbContext.Categories.AddRange(new List<Category>
+            {
+                new Category { Name = "Tech", Description = "Technology" },
+                new Category { Name = "Sports", Description = "Sports category" },
+                new Category { Name = "Food", Description = "Food related" }
+            });
+            await DbContext.SaveChangesAsync();
+
+            var search = new CategoriesSearch { Keyword = "Tech" };
+
+            // Act
+            var result = await _categoriesService.List(1, 2, search);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Single(result.Results);
+            Assert.Equal("Tech", result.Results.First().Name);
         }
     }
 }

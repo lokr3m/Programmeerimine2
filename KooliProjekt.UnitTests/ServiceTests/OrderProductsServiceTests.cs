@@ -1,4 +1,5 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Search;
 using KooliProjekt.Services;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -105,6 +106,60 @@ namespace KooliProjekt.UnitTests.ServiceTests
             // Assert
             Assert.NotNull(updatedOrderProduct);
             Assert.Equal("Test", updatedOrderProduct.Title);
+        }
+
+        [Fact]
+        public async Task List_should_return_paged_result()
+        {
+            // Arrange
+            DbContext.OrderProducts.AddRange(new List<OrderProduct>
+            {
+                new OrderProduct { Name = "Apple" },
+                new OrderProduct { Name = "Pear" },
+                new OrderProduct { Name = "Orange" },
+            });
+            await DbContext.SaveChangesAsync();
+
+            // Act
+            var result = await _orderProductsService.List(1, 2);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Results.Count);
+        }
+
+        [Fact]
+        public async Task List_should_filter_by_keyword()
+        {
+            // Arrange
+            DbContext.OrderProducts.AddRange(new List<OrderProduct>
+            {
+                new OrderProduct
+                {
+                    Name = "Apple",
+                    Product = new Product
+                    {
+                        Name = "Juice",
+                        Description = "-"
+                    },
+                    Order = new Order
+                    {
+                        Name = "Apple",
+                        Status = "Done"
+                    }
+                },
+            });
+            await DbContext.SaveChangesAsync();
+
+            var search = new OrderProductsSearch { Keyword = "Apple" };
+
+            // Act
+            var result = await _orderProductsService.List(1, 2, search);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Single(result.Results);
+            Assert.Equal("Apple", result.Results.First().Name);
         }
     }
 }

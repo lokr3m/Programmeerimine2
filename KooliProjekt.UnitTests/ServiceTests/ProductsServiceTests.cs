@@ -1,4 +1,5 @@
 ﻿using KooliProjekt.Data;
+using KooliProjekt.Search;
 using KooliProjekt.Services;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -105,6 +106,49 @@ namespace KooliProjekt.UnitTests.ServiceTests
             // Assert
             Assert.NotNull(updatedProduct);
             Assert.Equal("Test", updatedProduct.Title);
+        }
+
+        [Fact]
+        public async Task List_should_return_paged_result()
+        {
+            // Arrange
+            DbContext.Products.AddRange(new List<Product>
+            {
+                new Product { Name = "Tech", Description = "Tech related"},
+                new Product { Name = "Sports", Description = "Sports category"},
+                new Product { Name = "Food", Description = "Food related"}
+            });
+            await DbContext.SaveChangesAsync();
+
+            // Act
+            var result = await _productsService.List(1, 2);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Results.Count);
+        }
+
+        [Fact]
+        public async Task List_should_filter_by_keyword()
+        {
+            // Arrange
+            DbContext.Products.AddRange(new List<Product>
+            {
+                new Product { Name = "Tech", Description = "Tech related"},
+                new Product { Name = "Sports", Description = "Sports category"},
+                new Product { Name = "Food", Description = "Food related"}
+            });
+            await DbContext.SaveChangesAsync();
+
+            var search = new ProductsSearch { Keyword = "Tech" };
+
+            // Act
+            var result = await _productsService.List(1, 2, search);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Single(result.Results);
+            Assert.Equal("Tech", result.Results.First().Name);
         }
     }
 }
