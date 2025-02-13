@@ -1,11 +1,13 @@
 ﻿using KooliProjekt.Data;
 using KooliProjekt.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace KooliProjekt.Controllers
 {
+    [ExcludeFromCodeCoverage]
     [Route("api/Category")]
     [ApiController]
     public class CategoryApiController : ControllerBase

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.Diagnostics.CodeAnalysis;
 
 namespace KooliProjekt.Data
 {
+    [ExcludeFromCodeCoverage]
     public static class SeedData
     {
         public static void Generate(ApplicationDbContext context, UserManager<IdentityUser> userManager)
