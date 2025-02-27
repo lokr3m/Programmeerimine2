@@ -37,7 +37,6 @@ namespace KooliProjekt.UnitTests.ServiceTests
         {
             // Arrange
             var id = -100;
-
             // Act
             await _cartProductsService.Delete(id);
 
@@ -113,16 +112,18 @@ namespace KooliProjekt.UnitTests.ServiceTests
         public async Task List_should_return_paged_result()
         {
             // Arrange
+            var product = new Product { Name = "Product1", Description = "Product1" };
+            var cart = new ShoppingCart { Title = "ShoppingCart1" };
             DbContext.CartProducts.AddRange(new List<CartProduct>
             {
-                new CartProduct { ProductName = "Wallet", Title = "Wallet for money"},
-                new CartProduct { ProductName = "Watches", Title = "Pocket waches"},
-                new CartProduct { ProductName = "Clothes", Title = "Men clothes"},
+                new CartProduct { ProductName = "Wallet", Title = "Wallet for money", Product = product, ShoppingCart = cart },
+                new CartProduct { ProductName = "Watches", Title = "Pocket waches", Product = product, ShoppingCart = cart},
+                new CartProduct { ProductName = "Clothes", Title = "Men clothes", Product = product, ShoppingCart = cart},
             });
             await DbContext.SaveChangesAsync();
 
             // Act
-            var result = await _cartProductsService.List(1, 2);
+            var result = await _cartProductsService.List(1, 3);
 
             // Assert
             Assert.NotNull(result);

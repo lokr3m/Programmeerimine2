@@ -52,8 +52,8 @@ namespace KooliProjekt.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ProductId,Quantity")] CartProduct cartProduct)
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CartProduct cartProduct)
         {
             if (ModelState.IsValid)
             {
@@ -83,7 +83,7 @@ namespace KooliProjekt.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,ProductId,Quantity")] CartProduct cartProduct)
         {
             if (id != cartProduct.Id)
@@ -118,7 +118,7 @@ namespace KooliProjekt.Controllers
 
         // POST: CartProducts/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _cartProductsService.Delete(id);

@@ -37,7 +37,7 @@ namespace KooliProjekt.IntegrationTests
             // Arrange
 
             // Act
-            using var response = await _client.GetAsync("/Product/Details/100");
+            using var response = await _client.GetAsync("/Products/Details/100");
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -49,7 +49,7 @@ namespace KooliProjekt.IntegrationTests
             // Arrange
 
             // Act
-            using var response = await _client.GetAsync("/Product/Details/");
+            using var response = await _client.GetAsync("/Products/Details/");
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -59,12 +59,13 @@ namespace KooliProjekt.IntegrationTests
         public async Task Details_should_return_ok_when_list_was_found()
         {
             // Arrange
-            var list = new Product { Title = "List 1", Description = "Test 2", Name = "List 3" };
+            var category = new Category { Name = "Category1", Description="Category1"  };
+            var list = new Product { Title = "List 1", Description = "Test 2", Name = "List 3", Category = category };
             _context.Products.Add(list);
             _context.SaveChanges();
 
             // Act
-            using var response = await _client.GetAsync("/Product/Details/" + list.Id);
+            using var response = await _client.GetAsync("/Products/Details/" + list.Id);
 
             // Assert
             response.EnsureSuccessStatusCode();
