@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -75,28 +76,38 @@ namespace KooliProjekt.IntegrationTests
         public async Task Details_should_return_success_when_list_was_found()
         {
             // Arrange
-
-            var product = new Product { Name = "Product1", Description = "Test"};
-            var list = new CartProduct { Title = "Test", Product = product };
-            _context.CartProducts.Add(list);
+            var category = new Category { Name = "Product1", Description = "Test" };
+            var product = new Product { Name = "Product1", Description = "Test", Category = category };
+            var cart = new ShoppingCart { DateCreated = DateTime.Now, Title = "Test" };
+            var cartProduct = new CartProduct { Title = "Test", Product = product, ShoppingCart = cart };
+            _context.Add(product);
+            _context.Add(cartProduct);
             _context.SaveChanges();
 
             // Act
-            using var response = await _client.GetAsync("/CartProducts/Details/" + list.Id);
+            using var response = await _client.GetAsync("/CartProducts/Details/" + cartProduct.Id);
 
             // Assert
             response.EnsureSuccessStatusCode();
         }
 
         [Fact]
-        public async Task Create_should_save_new_list()
+        public async Task Create_should_save_new_cart_product()
         {
             // Arrange
-            var product = new Product { Name = "Product1", Description = "Test" };
+            var category = new Category { Name = "Test", Title="test", Description="´Test" };
+            var product = new Product { Name = "Product1", Description = "Test", Category = category };
+            var cart = new ShoppingCart { DateCreated = DateTime.Now, Title = "Test" };
+            _context.Add(product);
+            _context.Add(cart);
+            await _context.SaveChangesAsync();
 
             var formValues = new Dictionary<string, string>();
-            formValues.Add("Name", "Product1");
-            formValues.Add("Description", "Test");
+            formValues.Add("ProductName", "Product1");
+            formValues.Add("Title", "Test");
+            formValues.Add("ProductId", product.Id.ToString());
+            formValues.Add("ShoppingCartId", cart.Id.ToString());
+
 
             using var content = new FormUrlEncodedContent(formValues);
 

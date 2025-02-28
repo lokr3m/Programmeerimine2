@@ -12,6 +12,7 @@ namespace KooliProjekt.Data
         public int Quantity { get; set; }
 
         public ShoppingCart ShoppingCart { get; set; }
+        public int ShoppingCartId { get; set; }
         public string Title { get; set; }
     }
 }

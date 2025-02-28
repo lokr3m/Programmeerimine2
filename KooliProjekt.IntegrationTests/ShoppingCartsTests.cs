@@ -113,7 +113,7 @@ namespace KooliProjekt.IntegrationTests
         {
             // Arrange
             var formValues = new Dictionary<string, string>();
-            formValues.Add("Title", "");
+            formValues.Add("TotalPrice", "");
 
             using var content = new FormUrlEncodedContent(formValues);
 
