@@ -1,74 +1,98 @@
-﻿using KooliProjekt.WpfApp.Api;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using KooliProjekt.WpfApp.Api;
 
 namespace KooliProjekt.WpfApp
 {
-    public class MainWindowViewModel : IDisposable
+    public class MainWindowViewModel : NotifyPropertyChangedBase
     {
-        private readonly IApiClient _apiClient;
-        
         public ObservableCollection<Category> Lists { get; private set; }
-
+        public ICommand NewCommand { get; private set; }
         public ICommand SaveCommand { get; private set; }
         public ICommand DeleteCommand { get; private set; }
         public Predicate<Category> ConfirmDelete { get; set; }
 
-        public MainWindowViewModel() : this(new ApiClient()) 
-        { }
+        private readonly IApiClient _apiClient;
+
+        public MainWindowViewModel() : this(new ApiClient())
+        {
+        }
 
         public MainWindowViewModel(IApiClient apiClient)
         {
             _apiClient = apiClient;
 
             Lists = new ObservableCollection<Category>();
-            SaveCommand = new RelayCommand<Category>(async list =>
-            {
-                // Execute method
-                await _apiClient.Save(SelectedList);
-            },list =>
-            {
-                // CanExecute method
 
-                return SelectedList != null;
-            });
-            DeleteCommand = new RelayCommand<Category>(async _ =>
-            {
-                // Execute method
-                if(ConfirmDelete != null)
+            NewCommand = new RelayCommand<Category>(
+                // Execute
+                list =>
                 {
-                    var result = ConfirmDelete(SelectedList);
-                    if(!result)
-                    {
-                        return;
-                    }
+                    SelectedItem = new Category();
                 }
+            );
 
-                await _apiClient.Delete(SelectedList.Id);
-                Lists.Remove(SelectedList);
-            });
+            SaveCommand = new RelayCommand<Category>(
+                // Execute
+                async list =>
+                {
+                    await _apiClient.Save(SelectedItem);
+                    await Load();
+                },
+                // CanExecute
+                list =>
+                {
+                    return SelectedItem != null;
+                }
+            );
+
+            DeleteCommand = new RelayCommand<Category>(
+                // Execute
+                async list =>
+                {
+                    if (ConfirmDelete != null)
+                    {
+                        var result = ConfirmDelete(SelectedItem);
+                        if (!result)
+                        {
+                            return;
+                        }
+                    }
+
+                    await _apiClient.Delete(SelectedItem.Id);
+                    Lists.Remove(SelectedItem);
+                    SelectedItem = null;
+                },
+                // CanExecute
+                list =>
+                {
+                    return SelectedItem != null;
+                }
+            );
         }
 
         public async Task Load()
         {
+            Lists.Clear();
+
             var lists = await _apiClient.List();
-            foreach(var list in lists)
+            foreach (var list in lists)
             {
                 Lists.Add(list);
             }
         }
 
-        public Category SelectedList 
-        { 
-            get; 
-            set; 
-        }
-
-        public void Dispose()
+        private Category _selectedItem;
+        public Category SelectedItem
         {
-            if(_apiClient is IDisposable)
+            get
             {
-                (_apiClient as IDisposable).Dispose();
+                return _selectedItem;
+            }
+            set
+            {
+                _selectedItem = value;
+                NotifyPropertyChanged();
             }
         }
     }

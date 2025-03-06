@@ -1,38 +1,45 @@
-﻿using KooliProjekt.WpfApp.Api;
+﻿using System.Text;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using KooliProjekt.WpfApp.Api;
 
-namespace KooliProjekt.WpfApp
+namespace KooliProjekt.WpfApp;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml
+/// </summary>
+public partial class MainWindow : Window
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    public partial class MainWindow : Window
+    public MainWindow()
     {
-        public MainWindow()
+        InitializeComponent();
+
+        Loaded += MainWindow_Loaded;
+    }
+
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        var viewModel = new MainWindowViewModel();
+        viewModel.ConfirmDelete = _ =>
         {
-            InitializeComponent();
+            var result = MessageBox.Show(
+                            "Are you sure you want to delete selected item?",
+                            "Delete list",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Stop
+                            );
+            return (result == MessageBoxResult.Yes);
+        };
 
-            Loaded += MainWindow_Loaded;
+        DataContext = viewModel;
 
-        }
-
-        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            var viewModel = new MainWindowViewModel();
-            viewModel.ConfirmDelete = list =>
-            {
-                var result = MessageBox.Show(
-                    "Are you sure you want to delete selected list?",
-                    "Delete list",
-                    MessageBoxButton.YesNo
-                    );
-
-                return result == MessageBoxResult.Yes;
-            };
-
-            DataContext = viewModel;
-
-            await viewModel.Load();
-        }
+        await viewModel.Load();
     }
 }
