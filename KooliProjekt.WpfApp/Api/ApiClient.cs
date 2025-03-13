@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace KooliProjekt.WpfApp.Api
@@ -18,28 +16,70 @@ namespace KooliProjekt.WpfApp.Api
             _httpClient.BaseAddress = new Uri("https://localhost:7136/api/Category/");
         }
 
-        public async Task<IList<Category>> List()
+        public async Task<Result<List<Category>>> List()
         {
-            var result = await _httpClient.GetFromJsonAsync<List<Category>>("");
+            try
+            {
+                var result = await _httpClient.GetFromJsonAsync<List<Category>>("");
 
-            return result;
+                if (result == null || result.Count == 0)
+                {
+                    return Result<List<Category>>.Failure("Andmete laadimine ebaõnnestus või andmeid pole.");
+                }
+
+                return Result<List<Category>>.Success(result);
+            }
+            catch (Exception ex)
+            {
+                return Result<List<Category>>.Failure($"Viga andmete laadimisel: {ex.Message}");
+            }
         }
 
-        public async Task Save(Category list)
+
+        public async Task<Result> Save(Category category)
         {
-            if(list.Id == 0)
+            try
             {
-                await _httpClient.PostAsJsonAsync("", list);
+                HttpResponseMessage response;
+                if (category.Id == 0)
+                {
+                    response = await _httpClient.PostAsJsonAsync("", category);
+                }
+                else
+                {
+                    response = await _httpClient.PutAsJsonAsync(category.Id.ToString(), category);
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Result.Failure($"Ошибка: {response.StatusCode}");
+                }
+
+                return Result.Success();
             }
-            else
+            catch (Exception ex)
             {
-                await _httpClient.PutAsJsonAsync(list.Id.ToString(), list);
+                return Result.Failure(ex.Message);
             }
         }
 
-        public async Task Delete(int id)
+
+        public async Task<Result> Delete(int id)
         {
-            await _httpClient.DeleteAsync(id.ToString());
+            try
+            {
+                var response = await _httpClient.DeleteAsync(id.ToString());
+                if (!response.IsSuccessStatusCode)
+                {
+                    return Result.Failure($"Viga kustutamisel: {response.ReasonPhrase}");
+                }
+
+                return Result.Success();
+            }
+            catch (Exception ex)
+            {
+                return Result.Failure($"Viga kustutamisel: {ex.Message}");
+            }
         }
 
         public void Dispose()
