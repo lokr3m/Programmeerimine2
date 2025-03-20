@@ -32,7 +32,7 @@ public class MainWindowViewModelTests
         // Arrange
         var category = new Category { Id = 1, Name = "Test" };
         _viewModel.SelectedItem = category;
-        _mockApiClient.Setup(api => api.Save(category)).Returns(Task.CompletedTask);
+        _mockApiClient.Setup(api => api.Save(category)).Verifiable();
 
         // Act
         _viewModel.SaveCommand.Execute(null);
@@ -58,8 +58,15 @@ public class MainWindowViewModelTests
     public async Task Load_FillsLists()
     {
         // Arrange
-        var categories = new List<Category> { new Category { Id = 1, Name = "Test" } };
-        _mockApiClient.Setup(api => api.List()).ReturnsAsync(categories);
+        var result = new Result<List<Category>>
+        { 
+            Value = new List<Category>()
+            {
+                { new Category { Id = 1, Name = "Test" } }
+            }
+        };
+
+        _mockApiClient.Setup(api => api.List()).ReturnsAsync(result);
 
         // Act
         await _viewModel.Load();

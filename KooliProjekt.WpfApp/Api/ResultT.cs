@@ -2,7 +2,11 @@
 {
     public class Result<T> : Result
     {
-        public T Value { get; }
+        public T Value { get; set; }
+        
+        public Result()
+        {
+        }
 
         private Result(T value) : base(null)
         {

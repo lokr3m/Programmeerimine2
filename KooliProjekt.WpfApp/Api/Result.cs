@@ -6,6 +6,10 @@
         public bool IsSuccess => string.IsNullOrEmpty(Error);
         public bool HasError => !IsSuccess;
 
+        public Result() 
+        { 
+        }
+
         protected Result(string error)
         {
             Error = error;
