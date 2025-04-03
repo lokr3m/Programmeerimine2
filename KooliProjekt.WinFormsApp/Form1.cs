@@ -6,9 +6,13 @@ namespace KooliProjekt.WinFormsApp
 {
     public partial class Form1 : Form
     {
+        private readonly IApiClient _apiClient;
+
         public Form1()
         {
             InitializeComponent();
+
+            _apiClient = new ApiClient();
 
             CategoryGrid.SelectionChanged += CategoryGrid_SelectionChanged;
 
@@ -16,8 +20,21 @@ namespace KooliProjekt.WinFormsApp
             SaveButton.Click += SaveButton_Click;
             DeleteButton.Click += DeleteButton_Click;
         }
+        private async Task LoadDataAsync()
+        {
+            var response = await _apiClient.List();
+            if (response.IsSuccess)
+            {
+                CategoryGrid.DataSource = response.Value;
+            }
+            else
+            {
+                MessageBox.Show($"Andmete laadimine ebaõnnestus: {response.Error}",
+                        "Viga", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
-        private void DeleteButton_Click(object? sender, EventArgs e)
+        private async void DeleteButton_Click(object? sender, EventArgs e)
         {
             if (CategoryGrid.SelectedRows.Count == 0)
             {
@@ -40,13 +57,13 @@ namespace KooliProjekt.WinFormsApp
                 }
                 else
                 {
-                    MessageBox.Show($"Kustutamine ebaõnnestus: {deleteResult.ErrorMessage}",
+                    MessageBox.Show($"Kustutamine ebaõnnestus: {deleteResult.Error}",
                                     "Viga", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        private void SaveButton_Click(object? sender, EventArgs e)
+        private async void SaveButton_Click(object? sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(TitleField.Text))
             {
@@ -59,10 +76,10 @@ namespace KooliProjekt.WinFormsApp
             {
                 // Luuakse uus kategooria
                 category = new Category { Title = TitleField.Text };
-                var createResult = await _apiClient.Create(category);
+                var createResult = await _apiClient.Save(category);
                 if (!createResult.IsSuccess)
                 {
-                    MessageBox.Show($"Lisamine ebaõnnestus: {createResult.ErrorMessage}",
+                    MessageBox.Show($"Lisamine ebaõnnestus: {createResult.Error}",
                                     "Viga", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
@@ -76,10 +93,10 @@ namespace KooliProjekt.WinFormsApp
                     Title = TitleField.Text
                 };
 
-                var updateResult = await _apiClient.Update(category);
+                var updateResult = await _apiClient.Save(category);
                 if (!updateResult.IsSuccess)
                 {
-                    MessageBox.Show($"Uuendamine ebaõnnestus: {updateResult.ErrorMessage}",
+                    MessageBox.Show($"Uuendamine ebaõnnestus: {updateResult.Error}",
                                     "Viga", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
