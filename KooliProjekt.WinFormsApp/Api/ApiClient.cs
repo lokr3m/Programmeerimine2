@@ -21,10 +21,10 @@ namespace KooliProjekt.WinFormsApp.Api
 
                 if (result == null || result.Count == 0)
                 {
-                    return (Result<List<Category>>)Result<List<Category>>.Failure("Andmete laadimine ebaõnnestus või andmeid pole.");
+                    return Result<List<Category>>.Failure<List<Category>>("Andmete laadimine ebaõnnestus või andmeid pole.");
                 }
 
-                return (Result<List<Category>>)Result<List<Category>>.Success();
+                return Result<List<Category>>.Success<List<Category>>(result);
             }
             catch (Exception ex)
             {

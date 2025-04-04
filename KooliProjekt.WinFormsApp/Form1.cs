@@ -75,7 +75,7 @@ namespace KooliProjekt.WinFormsApp
             if (string.IsNullOrWhiteSpace(IdField.Text) || IdField.Text == "0")
             {
                 // Luuakse uus kategooria
-                category = new Category { Title = TitleField.Text };
+                category = new Category { Title = TitleField.Text, Name = NameField.Text, Description = DescriptionField.Text };
                 var createResult = await _apiClient.Save(category);
                 if (!createResult.IsSuccess)
                 {
@@ -90,7 +90,9 @@ namespace KooliProjekt.WinFormsApp
                 category = new Category
                 {
                     Id = int.Parse(IdField.Text),
-                    Title = TitleField.Text
+                    Title = TitleField.Text,
+                    Name = NameField.Text,
+                    Description = DescriptionField.Text
                 };
 
                 var updateResult = await _apiClient.Save(category);
@@ -151,6 +153,16 @@ namespace KooliProjekt.WinFormsApp
         }
 
         private void NewButton_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
         {
 
         }
