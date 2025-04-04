@@ -24,14 +24,14 @@ namespace KooliProjekt.WpfApp.Api
 
                 if (result == null || result.Count == 0)
                 {
-                    return Result<List<Category>>.Failure("Andmete laadimine ebaõnnestus või andmeid pole.");
+                    return Result<List<Category>>.Failure<List<Category>>("Andmete laadimine ebaõnnestus või andmeid pole.");
                 }
 
                 return Result<List<Category>>.Success(result);
             }
             catch (Exception ex)
             {
-                return Result<List<Category>>.Failure($"Viga andmete laadimisel: {ex.Message}");
+                return Result<List<Category>>.Failure<List<Category>>($"Viga andmete laadimisel: {ex.Message}");
             }
         }
 

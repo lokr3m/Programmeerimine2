@@ -28,7 +28,7 @@ namespace KooliProjekt.WinFormsApp.Api
             }
             catch (Exception ex)
             {
-                return (Result<List<Category>>)Result<List<Category>>.Failure($"Viga andmete laadimisel: {ex.Message}");
+                return Result<List<Category>>.Failure<List<Category>>($"Viga andmete laadimisel: {ex.Message}");
             }
         }
 
@@ -49,6 +49,7 @@ namespace KooliProjekt.WinFormsApp.Api
 
                 if (!response.IsSuccessStatusCode)
                 {
+                    var body = await response.Content.ReadAsStringAsync();
                     return Result.Failure($"Ошибка: {response.StatusCode}");
                 }
 

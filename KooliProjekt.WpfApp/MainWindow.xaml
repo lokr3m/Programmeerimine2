@@ -23,6 +23,10 @@
             <TextBlock Text="{Binding SelectedList.Id}"></TextBlock>
             <TextBlock>Title</TextBlock>
             <TextBox Text="{Binding SelectedList.Title}"></TextBox>
+            <TextBlock>Name</TextBlock>
+            <TextBox Text="{Binding SelectedList.Name}"></TextBox>
+            <TextBlock>Description</TextBlock>
+            <TextBox Text="{Binding SelectedList.Description}"></TextBox>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Margin="5">New</Button>
                 <Button Margin="5" Command="{Binding SaveCommand}">Save</Button>

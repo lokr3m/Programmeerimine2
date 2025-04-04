@@ -18,7 +18,7 @@
             Value = default;
         }
 
-        public static Result<T> Success(T value) => new Result<T>(value);
-        public static Result<T> Failure(string error) => new Result<T>(error);
+        public static Result<T> Success<T>(T value) => new Result<T>(value);
+        public static Result<T> Failure<T>(string error) => new Result<T>(error);
     }
 }
