@@ -85,7 +85,6 @@
             TitleField.Name = "TitleField";
             TitleField.Size = new Size(281, 23);
             TitleField.TabIndex = 4;
-            TitleField.TextChanged += TitleField_TextChanged;
             // 
             // NewButton
             // 
@@ -95,7 +94,7 @@
             NewButton.TabIndex = 5;
             NewButton.Text = "New";
             NewButton.UseVisualStyleBackColor = true;
-            NewButton.Click += NewButton_Click_1;
+            NewButton.Click += AddButton_Click;
             // 
             // SaveButton
             // 
@@ -139,7 +138,6 @@
             DescriptionLabel.Size = new Size(70, 15);
             DescriptionLabel.TabIndex = 10;
             DescriptionLabel.Text = "Description:";
-            DescriptionLabel.Click += label1_Click;
             // 
             // DescriptionField
             // 
@@ -147,7 +145,6 @@
             DescriptionField.Name = "DescriptionField";
             DescriptionField.Size = new Size(281, 23);
             DescriptionField.TabIndex = 11;
-            DescriptionField.TextChanged += textBox1_TextChanged;
             // 
             // Form1
             // 

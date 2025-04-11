@@ -144,6 +144,10 @@ namespace KooliProjekt.UnitTests.ServiceTests
                     {
                         Name = "SilverWallet",
                         Description = "-"
+                    },
+                    ShoppingCart = new ShoppingCart
+                    {
+                        Title = "Wallet"
                     }
                 },
             });
