@@ -20,6 +20,7 @@ namespace KooliProjekt
                 options.UseSqlServer(connectionString);
             });
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7141/api/") });
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -30,6 +31,7 @@ namespace KooliProjekt
             builder.Services.AddScoped<ICategoriesService, CategoriesService>();
             builder.Services.AddScoped<ICartProductsService, CartProductsService>();
             builder.Services.AddControllersWithViews();
+            builder.Services.AddCors();
 
             var app = builder.Build();
 
@@ -47,6 +49,11 @@ namespace KooliProjekt
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseCors(
+            options => options.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+            );
 
             app.UseRouting();
 
