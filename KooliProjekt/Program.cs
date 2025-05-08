@@ -20,7 +20,6 @@ namespace KooliProjekt
                 options.UseSqlServer(connectionString);
             });
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7141/api/") });
 
             builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();

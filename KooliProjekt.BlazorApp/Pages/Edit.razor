@@ -1,0 +1,37 @@
+﻿@page "/create"
+@page "/edit/{Id:int}"
+
+@inject IApiClient apiClient
+@inject NavigationManager NavManager
+
+<h3>@title</h3>
+
+<EditForm Model="@category" OnSubmit=@FormSubmitted>>
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    private Category category = new Category();
+    private string title = "Edit";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id == 0)
+        {
+            title = "Create new";
+            return;
+        }
+
+        var result = await apiClient.Get(Id);
+
+        category = result.Value;
+    }
+
+    private async Task FormSubmitted()
+    {
+        await apiClient.Save(category);
+
+        NavManager.NavigateTo("/");
+    }
+}
