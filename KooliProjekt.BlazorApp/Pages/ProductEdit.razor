@@ -1,0 +1,67 @@
+﻿@page "/product-create"
+@page "/product-edit/{Id:int}"
+
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<EditForm Model="@product" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Name</label>
+        <InputText class="form-control" @bind-Value="product.Name" />
+    </div>
+    <div class="form-group">
+        <label>Price</label>
+        <InputNumber class="form-control" @bind-Value="product.Price" />
+    </div>
+    <div class="form-group">
+        <label>Category</label>
+        <InputSelect class="form-control" @bind-Value="product.CategoryId">
+            <option value="">-- select category --</option>
+            @foreach (var cat in categories)
+            {
+                <option value="@cat.Id">@cat.Name</option>
+            }
+        </InputSelect>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</EditForm>
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    private Product product = new Product();
+    private List<Category> categories = new List<Category>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await Http.GetFromJsonAsync<List<Category>>("api/Category");
+        if (Id.HasValue)
+        {
+            product = await Http.GetFromJsonAsync<Product>($"api/Product/{Id}");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (product.Id == 0)
+            await Http.PostAsJsonAsync("api/Product", product);
+        else
+            await Http.PutAsJsonAsync($"api/Product/{product.Id}", product);
+        NavManager.NavigateTo("/products");
+    }
+
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public int CategoryId { get; set; }
+    }
+    public class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+}

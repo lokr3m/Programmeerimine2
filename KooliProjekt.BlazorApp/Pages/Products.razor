@@ -1,0 +1,61 @@
+﻿@page "/products"
+
+@inject HttpClient Http
+
+<PageTitle>Products</PageTitle>
+
+<h1>Products</h1>
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <a class="btn btn-primary" href="/product-create">Add new</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Name</td>
+                    <td>@product.Category?.Name</td>
+                    <td>@product.Price</td>
+                    <td>
+                        <a href="/product-edit/@product.Id" class="btn btn-primary">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Product> products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Http.GetFromJsonAsync<List<Product>>("api/Product");
+    }
+
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public Category Category { get; set; }
+    }
+    public class Category
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+}
