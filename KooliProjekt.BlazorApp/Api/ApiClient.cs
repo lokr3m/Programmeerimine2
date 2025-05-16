@@ -22,7 +22,7 @@ namespace KooliProjekt.BlazorApp
 
             try
             {
-                result.Value = await _httpClient.GetFromJsonAsync<List<Category>>("Categories");
+                result.Value = await _httpClient.GetFromJsonAsync<List<Category>>("Category");
             }
             catch (Exception ex)
             {
@@ -40,11 +40,11 @@ namespace KooliProjekt.BlazorApp
             {
                 if (category.Id == 0)
                 {
-                    await _httpClient.PostAsJsonAsync("Categories", category);
+                    await _httpClient.PostAsJsonAsync("Category", category);
                 }
                 else
                 {
-                    await _httpClient.PutAsJsonAsync("Categories/" + category.Id, category);
+                    await _httpClient.PutAsJsonAsync("Category/" + category.Id, category);
                 }
             }
             catch (Exception ex)
@@ -57,7 +57,7 @@ namespace KooliProjekt.BlazorApp
 
         public async Task Delete(int id)
         {
-            await _httpClient.DeleteAsync("Categories/" + id);
+            await _httpClient.DeleteAsync("Category/" + id);
         }
 
         public async Task<Result<Category>> Get(int id)
@@ -66,7 +66,7 @@ namespace KooliProjekt.BlazorApp
 
             try
             {
-                result.Value = await _httpClient.GetFromJsonAsync<Category>("Categories/" + id);
+                result.Value = await _httpClient.GetFromJsonAsync<Category>("Category/" + id);
             }
             catch (Exception ex)
             {
