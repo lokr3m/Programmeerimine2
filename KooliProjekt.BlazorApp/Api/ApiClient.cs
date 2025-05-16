@@ -26,7 +26,7 @@ namespace KooliProjekt.BlazorApp
             }
             catch (Exception ex)
             {
-                result.Error = ex.Message;
+                result.AddError("_", ex.Message);
             }
 
             return result;
@@ -34,25 +34,27 @@ namespace KooliProjekt.BlazorApp
 
         public async Task<Result> Save(Category category)
         {
-            var result = new Result();
+            HttpResponseMessage response;
 
-            try
+            if (category.Id == 0)
             {
-                if (category.Id == 0)
-                {
-                    await _httpClient.PostAsJsonAsync("Category", category);
-                }
-                else
-                {
-                    await _httpClient.PutAsJsonAsync("Category/" + category.Id, category);
-                }
+                response = await _httpClient.PostAsJsonAsync("Category", category);
             }
-            catch (Exception ex)
+            else
             {
-                result.Error = ex.Message;
+                response = await _httpClient.PutAsJsonAsync("Category/" + category.Id, category);
             }
 
-            return result;
+            using (response)
+            {
+                if (!response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<Result>();
+                    return result;
+                }
+            }
+
+            return new Result();
         }
 
         public async Task Delete(int id)
@@ -60,7 +62,7 @@ namespace KooliProjekt.BlazorApp
             await _httpClient.DeleteAsync("Category/" + id);
         }
 
-        public async Task<Result<Category>> Get(int id)
+        public async Task<Result<Category>> Get(int id) 
         {
             var result = new Result<Category>();
 
@@ -70,7 +72,7 @@ namespace KooliProjekt.BlazorApp
             }
             catch (Exception ex)
             {
-                result.Error = ex.Message;
+                result.AddError("_", ex.Message);
             }
 
             return result;
